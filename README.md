@@ -1,56 +1,95 @@
-## Official code accompanying the paper:
+# T5-Base Fine-Tuning for English to Hinglish Generation
 
-> **Code-Mixer Ya Nahi: Novel Approaches to Measuring Multilingual LLMs' Code-Mixing Capabilities**
-> Ayushman Gupta\*, Akhil Bhogal\*, Kripabandhu Ghosh
-> IISER Kolkata
-> [[arXiv]](https://arxiv.org/abs/2410.11079)
+This repository fine-tunes **T5-base** for English-to-Hinglish code-mixed text generation using the HinGE dataset (HinglishEval INLG 2022 Shared Task).
+
+This implementation accompanies:
+
+*Code-Mixer Ya Nahi: Novel Approaches To Measuring Multilingual LLMs' Code-Mixing Capabilities*  
+Ayushman Gupta*, Akhil Bhogal*, Kripabandhu Ghosh  
+IISER Kolkata  
+https://arxiv.org/abs/2410.11079
 
 ---
 
-## Overview 
+## Task
 
-This repository implements fine-tuning of T5-base on the PHINC dataset. 
+Given an English sentence, the model generates a Hinglish (Hindi–English code-mixed) sentence.
 
-## Hyperparameters and Details
+During training, inputs are prefixed with: "Generate Hinglish from English:"
 
-### Training
-
-Total Sentences: 13738 -> Split 0.15 fraction (shuffled) with Valid Data.
-
-Train=11677, Valid=2061
-
-Prefix=“Generate Hinglish from English:” was added to input. 
-
-Max Input Length = 114
-
-Max Target Length = 118
-
-Optimizer: AdamW
-
-fp16 = False
-
-Per Device Train batch size = 24
-
-Per Device Eval Batch Size = 6
-
-Learning Rate = 5e-5
-
-Train Epochs = 30
-
-GPU: NVIDIA Tesla P100 (16GB VRAM)
+## Expected Directory Structure
+```
+Data/HinglishEval_INLG_2022_shared_task/
+      train.csv
+      valid.csv
+      test.csv
+Split_hinge_data/
+```
 
 
-### Inference
-Temperature = 0.001
+All splits are combined and re-split internally:
 
-Repetition Penalty = 2.0
+- Total samples: 13,738  
+- Train: 11,677  
+- Validation: 2,061  
+- Validation split: 15% (shuffled)
+
+---
+
+## Model and Training Configuration
+
+### Base Model
+
+- `t5-base`
+
+### Hyperparameters
+
+- Learning rate: 2e-5  
+- Batch size (train): 8  
+- Batch size (eval): 8  
+- Epochs: 20  
+- Weight decay: 0.001  
+- FP16: True  
+- Evaluation strategy: per epoch  
+- Predict with generate: True  
+
+### Sequence Lengths
+
+- Max input length: 210  
+- Max target length: 450  
+
+### Hardware
+
+- NVIDIA Tesla P100 (16GB VRAM)
+
+---
+
+## Validation Performance (HinGE)
+
+Best validation metrics:
+
+- ROUGE-1: 32.78  
+- ROUGE-L: 31.33  
+- Validation loss: ≈ 2.02  
+
+A ROUGE curve is saved as: `rouge_curve.png`
+
+---
+
+## Results on EMNLP 2023 Zhang et al Dataset
+
+Evaluated on the dataset from:  
+https://aclanthology.org/2023.emnlp-main.774/
+
+- BLEU: 13.97  
+- ROUGE-L (F1): 36.21  
+- METEOR: 35.12  
 
 ---
 
 ## Citation
 
-If you use this code, please cite: 
-
+If you use this code, please cite
 ```bibtex
 @misc{gupta2024codemixeryanahinovel,
       title={Code-Mixer Ya Nahi: Novel Approaches to Measuring Multilingual LLMs' Code-Mixing Capabilities}, 
